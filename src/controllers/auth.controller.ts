@@ -79,3 +79,45 @@ export const signupController = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const loginController = async (req: Request, res: Response) => {
+  const { email, password } = req.body;
+
+  try {
+    if (!email || !password) {
+      res.status(400).json({
+        error: true,
+        message: "Email or password invalid",
+      });
+    }
+
+    const dbUser = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!dbUser) {
+      res.status(400).json({
+        error: true,
+        message: "Invalid credentials! no user found !",
+      });
+    }
+
+    const passOk:boolean = await bcrypt.compare(password, dbUser?.password!); //forcing that it isnt undefined
+    
+    if(!passOk){
+      res.status(401).json({
+        error: true,
+        message: "Invalid credentials!password wrong!",
+      });
+    }
+
+    const token=jwt
+
+  } catch (error: any) {
+    console.log("login controller error ");
+    res.status(500).json({
+      error: true,
+      message: error.message,
+    });
+  }
+};
